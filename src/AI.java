@@ -50,7 +50,7 @@ public class AI {
         return Won(state, HUMAN) || Won(state, COMP) || emptyCells(state).isEmpty();
     }
 
-    public static int minimax(int[][] state, int depth, int player) {
+    public static int minimax(int[][] state, int depth, int player, int alpha, int beta) {
         if (depth == 0 || game_over(state)) {
             return evaluate(state);
         }
@@ -60,8 +60,13 @@ public class AI {
                 int x = cell[0];
                 int y = cell[1];
                 state[x][y] = COMP;
-                best = Integer.max(best, minimax(state, depth - 1, HUMAN));
+                best = Integer.max(best, minimax(state, depth - 1, HUMAN, alpha, beta));
                 state[x][y] = 0;
+                alpha = Integer.max(alpha, best);
+                if(alpha>= beta)
+                {
+                    break;
+                }
             }
             return best;
         } else {
@@ -70,8 +75,12 @@ public class AI {
                 int x = cell[0];
                 int y = cell[1];
                 state[x][y] = HUMAN;
-                best = Integer.min(best, minimax(state, depth - 1, COMP));
+                best = Integer.min(best, minimax(state, depth - 1, COMP, alpha, beta));
                 state[x][y] = 0;
+                beta = Integer.min(beta, best);
+                if (beta <= alpha) {
+                    break;
+                }
             }
             return best;
         }
@@ -85,17 +94,24 @@ public class AI {
 
         int[] bestMove = null;
         int bestValue = Integer.MIN_VALUE;
+        int alpha = Integer.MIN_VALUE;
+        int beta = Integer.MAX_VALUE;
 
         for (int[] cell : emptyCells(state)) {
             int x = cell[0];
             int y = cell[1];
             state[x][y] = COMP;
-            int moveValue = minimax(state, depth - 1, HUMAN);
+            int moveValue = minimax(state, depth - 1, HUMAN, alpha,beta);
             state[x][y] = 0;
 
             if (moveValue > bestValue) {
                 bestValue = moveValue;
                 bestMove = new int[] {x, y};
+            }
+            alpha = Integer.max(alpha, bestValue);
+            if (beta <= alpha) 
+            {
+                break; 
             }
         }
 
